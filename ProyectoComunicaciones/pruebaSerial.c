@@ -5,7 +5,18 @@ HANDLE abrirPuertoSerie() {
 
 }
 
+//Combina 4 bytes en un unsigned int
+unsigned int combinarAInt(unsigned char* bytes, int inicio) {
+    unsigned int ret = bytes[inicio] | (bytes[inicio + 1] << 8) | (bytes[inicio + 2] << 16) | (bytes[inicio + 3] << 24);
+    return ret;
+}
 
+//Combina 4 bytes a un float
+void conbinarAFloat(unsigned char* bytes, int inicio, float *f) {
+
+    unsigned char bytes_aux[4] = { bytes[inicio],bytes[inicio + 1], bytes[inicio + 2],bytes[inicio + 3] };
+    memcpy(f, bytes_aux, sizeof(float));
+}
 
 int main() {
 
@@ -72,45 +83,54 @@ int main() {
 
     SetCommMask(port, EV_RXCHAR); //Establecemos el evento a cualquier caracter recibido
 
-    char c;
-    char* cBuf = NULL;
+    unsigned char c;
+    unsigned char cBuf[10];
     DWORD readSize;
     int size = 0;
+    int msg = 1;
 
-    //Esperamos al evento de lectura por el SO
-    if (WaitCommEvent(port, &eventMask, NULL)) {
-        //Intentamos leer 1 byte y nos lo guardamos en nuestro array de bytes final, 
-        //así hasta que no quede nada por leer
-        do {
-            if (ReadFile(port, &c, 1, &readSize, NULL) != 0) {
-                if (readSize > 0) {
-                    size += readSize;
-                    cBuf = (char*)realloc(cBuf, size * sizeof(char));
-                    cBuf[size - 1] = c;
+    do {
+        //Esperamos al evento de lectura por el SO
+        if (WaitCommEvent(port, &eventMask, NULL)) {
+            //Intentamos leer 1 byte y nos lo guardamos en nuestro array de bytes final, 
+            //así hasta que no quede nada por leer
+            do {
+                if (ReadFile(port, &c, 1, &readSize, NULL) != 0) {
+                    if (readSize > 0) {
+                        if (c == '/') {
+                            msg = 0; //Flag que indica que se acabó el mensaje
+                            printf("Se acabo\n");
+                            break;
+                        }
+                        size += readSize;
+                        cBuf[size - 1] = c;
+                    }
                 }
-            }
-            else {
-                printf("Error en la lectura del puerto");
-                CloseHandle(port);
-                return(0);
-            }
+                else {
+                    printf("Error en la lectura del puerto");
+                    CloseHandle(port);
+                    return(0);
+                }
+                
+            } while (c != ';');
 
-        } while (readSize > 0);
+            unsigned int a = combinarAInt(cBuf, 0);
+            unsigned char b = cBuf[4];
+            float d;
+            conbinarAFloat(cBuf, 5, &d);
+            unsigned char e = cBuf[9];
 
-        //Metemos al final el caracter de fin de cadena
-        size++;
-        cBuf = (char*)realloc(cBuf, size * sizeof(char));
-        cBuf[size - 1] = 0;
+            printf("Valores leidos: %d%c%.1f%c\n", a, b, d, e);
+            size = 0;
+        } 
 
-        printf("Valores leidos: %s", cBuf);
-    }
-
-    else {
-        printf("Error al detectar el evento de comunicaciones");
-        CloseHandle(port);
-        return(0);
-    }
-
+        else {
+            printf("Error al detectar el evento de comunicaciones");
+            CloseHandle(port);
+            return(0);
+        }
+        
+    } while (msg);
 
     CloseHandle(port);
     port = INVALID_HANDLE_VALUE;
