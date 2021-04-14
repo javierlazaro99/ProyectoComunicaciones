@@ -1,29 +1,55 @@
 #include <stdio.h>
 #include <Windows.h>
+#include "comunicaciones.h"
 
-HANDLE abrirPuertoSerie() {
 
-}
-
-//Combina 4 bytes en un unsigned int
 unsigned int combinarAInt(unsigned char* bytes, int inicio) {
     unsigned int ret = bytes[inicio] | (bytes[inicio + 1] << 8) | (bytes[inicio + 2] << 16) | (bytes[inicio + 3] << 24);
     return ret;
 }
 
-//Combina 4 bytes a un float
-void conbinarAFloat(unsigned char* bytes, int inicio, float *f) {
+void combinarAFloat(unsigned char* bytes, int inicio, float *f) {
 
     unsigned char bytes_aux[4] = { bytes[inicio],bytes[inicio + 1], bytes[inicio + 2],bytes[inicio + 3] };
     memcpy(f, bytes_aux, sizeof(float));
 }
 
-int main() {
+int combinarBuffer(DATO *miDato,char* buffer, int tamBuffer, int numSep, char fin) {
+    int sep = 0, error = 0;
+
+    //Comprobación de que el buffer es válido 
+    for (int i = 0; i < tamBuffer; i++)
+    {
+        if (buffer[i] == ',') {
+            sep++;
+        }
+    }
+
+    //Buffer con características válidas, hay que checkear validez de los datos
+    if ((sep == numSep) && buffer[tamBuffer - 1] == fin) { 
+        miDato->co2 = combinarAInt(buffer, 0);
+        miDato->numPersonas = combinarAInt(buffer, 5);
+        miDato->caudal = combinarAInt(buffer, 10);
+        combinarAFloat(buffer, 15, &miDato->tiempo);
+    }
+    else { //Buffer invalido
+        error = 1;
+    }
+
+    //Checkear la validez de los datos leídos
+    if (miDato->co2 < 400) {
+        error = 1; //Lecturas por debajo de 400 son errores del sensor
+    }
+
+    return(error);
+}
+
+
+int lanzarComunicacionSerie(DATO** listaDatos, int* numDatos) {
+    //------------------------------ CONFIGURACION DEL PUERTO SERIE ------------------------------------//
 
     HANDLE port;
     char* device = "\\\\.\\COM6";
-    char buffer[5];
-    DWORD bytesLeidos;
 
     //Con esto tratamos de abrir el puerto COM6
     port = CreateFileA(device, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -34,14 +60,6 @@ int main() {
         return(0);
     }
     
-    //Con esto nos ponemos a leer lo que nos llega por el COM6
-    //Nos vamos a leer 5 bytes 5*sizeof(char) que es 1 byte
-    
-   // ReadFile(port, buffer, sizeof(char)*5, &bytesLeidos, NULL);
-
-     
-   // printf("%s", buffer);
-
     //Configuramos los parametros del puerto
     DCB dcbConf;
     if (GetCommState(port, &dcbConf)) {
@@ -64,9 +82,9 @@ int main() {
     COMMTIMEOUTS cTimeout;
 
     if (GetCommTimeouts(port, &cTimeout)) {
-        cTimeout.ReadIntervalTimeout = 0;
-        cTimeout.ReadTotalTimeoutConstant = 1000;
-        cTimeout.ReadTotalTimeoutMultiplier = 0;
+        cTimeout.ReadIntervalTimeout = 5; // Tiempo de espera entre recibir 2 bytes conecutivos,
+        cTimeout.ReadTotalTimeoutConstant = 5000; // Cuanto tiempo se queda esperando el readfile
+        cTimeout.ReadTotalTimeoutMultiplier = 0; // Esto da un poco igual --> No se usa mucho
         cTimeout.WriteTotalTimeoutConstant = 1000;
         cTimeout.WriteTotalTimeoutMultiplier = 0;
     }
@@ -83,54 +101,46 @@ int main() {
 
     SetCommMask(port, EV_RXCHAR); //Establecemos el evento a cualquier caracter recibido
 
-    unsigned char c;
-    unsigned char cBuf[10];
+    //-------------------------- LECTURA PUERTO SERIE ---------------------------------------//
+
+    unsigned char bufferLectura[100];
+    int continuar = 1;
     DWORD readSize;
-    int size = 0;
-    int msg = 1;
+    DATO miDato;
+    DATO* listaDatos = (DATO*) calloc(100, sizeof(DATO));
+    if (listaDatos == NULL) {
+        printf("Error en la creación de la lista de datos");
+        CloseHandle(port);
+        return(0);
+    }
 
     do {
-        //Esperamos al evento de lectura por el SO
-        if (WaitCommEvent(port, &eventMask, NULL)) {
-            //Intentamos leer 1 byte y nos lo guardamos en nuestro array de bytes final, 
-            //así hasta que no quede nada por leer
-            do {
-                if (ReadFile(port, &c, 1, &readSize, NULL) != 0) {
-                    if (readSize > 0) {
-                        if (c == '/') {
-                            msg = 0; //Flag que indica que se acabó el mensaje
-                            printf("Se acabo\n");
-                            break;
-                        }
-                        size += readSize;
-                        cBuf[size - 1] = c;
-                    }
+        //Lanzamos una lectura del puerto serie
+        if (ReadFile(port, bufferLectura, 100, &readSize, NULL) != 0) {
+            //Si en menos de 5s hemos leído algo (puede ser vacío) saltaremos aquí
+            if (readSize == 0) {
+                //Tras 5s no hemos leído nada --> Salir bucle
+                printf("Ensayo finalidado, saliendo...");
+                continuar = 0;
+            }
+            else {
+                //Hemos leído algo y lo tenemos en el buffer --> Procesarlo y guardarlo
+                if (combinarBuffer(&miDato, bufferLectura, readSize, 3, ';') == 0) {
+                    printf("Valores leidos: CO2: %d  , Num Personas: %d  , Caudal aire: %d , Tiempo: %.1f ;\n", miDato.co2, miDato.numPersonas, miDato.caudal, miDato.tiempo);
+                    *listaDatos[*numDatos] = miDato;
+                    numDatos++;
                 }
                 else {
-                    printf("Error en la lectura del puerto");
-                    CloseHandle(port);
-                    return(0);
+                    printf("Error, buffer no valido\n");
                 }
-                
-            } while (c != ';');
-
-            unsigned int a = combinarAInt(cBuf, 0);
-            unsigned char b = cBuf[4];
-            float d;
-            conbinarAFloat(cBuf, 5, &d);
-            unsigned char e = cBuf[9];
-
-            printf("Valores leidos: %d%c%.1f%c\n", a, b, d, e);
-            size = 0;
-        } 
-
+            }
+        }
         else {
-            printf("Error al detectar el evento de comunicaciones");
+            printf("Error en la lectura del puerto");
             CloseHandle(port);
             return(0);
         }
-        
-    } while (msg);
+    } while (continuar);
 
     CloseHandle(port);
     port = INVALID_HANDLE_VALUE;
