@@ -20,8 +20,14 @@ void combinarAFloat(unsigned char* bytes, int inicio, float* f);
 //Combina el buffer leído por serial y lo convierte en una estructura de tipo DATO
 int combinarBuffer(DATO* miDato, char* buffer, int tamBuffer, int numSep, char fin);
 
+//Abre el puerto correspondiente a la conexión BT serial, lo configura y devuelve su HANDLE
+int abrirPuerto(HANDLE* port);
+
+//Escribe un mensaje por el puerto serie correspondinte para indicar a la raspberry que comience el experimento
+int comenzarExperimento(HANDLE port);
+
 //Trata de comunicarse por conexión BT puerto serie con la raspberry
-int lanzarComunicacionSerie(DATO** listaDatos, int* numDatos);
+int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos);
 
 
 
