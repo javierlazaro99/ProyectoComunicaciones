@@ -141,10 +141,12 @@
   <ItemGroup>
     <ClCompile Include="csv.c" />
     <ClCompile Include="gradiente.c" />
+    <ClCompile Include="main.c" />
     <ClCompile Include="pruebaCsv.c" />
     <ClCompile Include="pruebaSerial.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="comunicaciones.h" />
     <ClInclude Include="csv.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
