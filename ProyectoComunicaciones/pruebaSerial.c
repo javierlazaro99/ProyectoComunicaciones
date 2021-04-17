@@ -2,6 +2,8 @@
 #include <Windows.h>
 #include "comunicaciones.h"
 
+#pragma warning(disable:4996)
+
 
 unsigned int combinarAInt(unsigned char* bytes, int inicio) {
     unsigned int ret = bytes[inicio] | (bytes[inicio + 1] << 8) | (bytes[inicio + 2] << 16) | (bytes[inicio + 3] << 24);
@@ -26,7 +28,7 @@ int combinarBuffer(DATO *miDato,char* buffer, int tamBuffer, int numSep, char fi
     }
 
     //Buffer con características válidas, hay que checkear validez de los datos
-    if ((sep == numSep) && buffer[tamBuffer - 1] == fin) { 
+    if ((sep == numSep) ) { 
         miDato->co2 = combinarAInt(buffer, 0);
         miDato->numPersonas = combinarAInt(buffer, 5);
         miDato->caudal = combinarAInt(buffer, 10);
@@ -45,24 +47,23 @@ int combinarBuffer(DATO *miDato,char* buffer, int tamBuffer, int numSep, char fi
 }
 
 
-int lanzarComunicacionSerie(DATO** listaDatos, int* numDatos) {
-    //------------------------------ CONFIGURACION DEL PUERTO SERIE ------------------------------------//
+int abrirPuerto(HANDLE *port) {
 
-    HANDLE port;
+    //HANDLE port;
     char* device = "\\\\.\\COM6";
 
     //Con esto tratamos de abrir el puerto COM6
-    port = CreateFileA(device, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    *port = CreateFileA(device, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-    if (port == INVALID_HANDLE_VALUE) {
+    if (*port == INVALID_HANDLE_VALUE) {
         printf("Error al abrir el puerto: %s", device);
-        CloseHandle(port);
+        CloseHandle(*port);
         return(0);
     }
-    
+
     //Configuramos los parametros del puerto
     DCB dcbConf;
-    if (GetCommState(port, &dcbConf)) {
+    if (GetCommState(*port, &dcbConf)) {
         dcbConf.BaudRate = 9600;
         dcbConf.ByteSize = 8;
         dcbConf.Parity = NOPARITY;
@@ -72,16 +73,16 @@ int lanzarComunicacionSerie(DATO** listaDatos, int* numDatos) {
     }
     else {
         printf("Error en la configuración del puerto: %s", device);
-        CloseHandle(port);
+        CloseHandle(*port);
         return(0);
     }
 
-    SetCommState(port, &dcbConf);
+    SetCommState(*port, &dcbConf);
 
     //Configuramos la estructura de timeouts
     COMMTIMEOUTS cTimeout;
 
-    if (GetCommTimeouts(port, &cTimeout)) {
+    if (GetCommTimeouts(*port, &cTimeout)) {
         cTimeout.ReadIntervalTimeout = 5; // Tiempo de espera entre recibir 2 bytes conecutivos,
         cTimeout.ReadTotalTimeoutConstant = 5000; // Cuanto tiempo se queda esperando el readfile
         cTimeout.ReadTotalTimeoutMultiplier = 0; // Esto da un poco igual --> No se usa mucho
@@ -90,12 +91,34 @@ int lanzarComunicacionSerie(DATO** listaDatos, int* numDatos) {
     }
     else {
         printf("Error en la configuración de los timeouts: %s", device);
+        CloseHandle(*port);
+        return(0);
+    }
+
+    SetCommTimeouts(*port, &cTimeout);
+
+    return(1);
+}
+
+int comenzarExperimento(HANDLE port, int time) {
+
+    char msg[10];
+    sprintf(msg, "START,%d\n", time);
+    int numBytes;
+    if (WriteFile(port, msg, 10 , &numBytes, NULL) != 0) {
+        printf("Comenzando experimento...\n");
+    }
+    else {
+        printf("Error en la escritura del puerto");
         CloseHandle(port);
         return(0);
     }
 
-    SetCommTimeouts(port, &cTimeout);
 
+    return(1);
+}
+
+int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos) {   
     //Configurar la lectura
     DWORD eventMask;
 
@@ -104,11 +127,10 @@ int lanzarComunicacionSerie(DATO** listaDatos, int* numDatos) {
     //-------------------------- LECTURA PUERTO SERIE ---------------------------------------//
 
     unsigned char bufferLectura[100];
-    int continuar = 1;
+    int continuar = 1, contDatos = 0;
     DWORD readSize;
     DATO miDato;
-    DATO* listaDatos = (DATO*) calloc(100, sizeof(DATO));
-    if (listaDatos == NULL) {
+    if (*listaDatos == NULL) {
         printf("Error en la creación de la lista de datos");
         CloseHandle(port);
         return(0);
@@ -127,8 +149,8 @@ int lanzarComunicacionSerie(DATO** listaDatos, int* numDatos) {
                 //Hemos leído algo y lo tenemos en el buffer --> Procesarlo y guardarlo
                 if (combinarBuffer(&miDato, bufferLectura, readSize, 3, ';') == 0) {
                     printf("Valores leidos: CO2: %d  , Num Personas: %d  , Caudal aire: %d , Tiempo: %.1f ;\n", miDato.co2, miDato.numPersonas, miDato.caudal, miDato.tiempo);
-                    *listaDatos[*numDatos] = miDato;
-                    numDatos++;
+                    (*listaDatos)[contDatos] = miDato;
+                    contDatos++;
                 }
                 else {
                     printf("Error, buffer no valido\n");
@@ -142,7 +164,9 @@ int lanzarComunicacionSerie(DATO** listaDatos, int* numDatos) {
         }
     } while (continuar);
 
+    *numDatos = contDatos;
+
     CloseHandle(port);
     port = INVALID_HANDLE_VALUE;
-    return(0);
+    return(1);
 }
