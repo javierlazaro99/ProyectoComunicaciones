@@ -106,7 +106,7 @@ int comenzarExperimento(HANDLE port, int time) {
     sprintf(msg, "START,%d\n", time);
     int numBytes;
     if (WriteFile(port, msg, 10 , &numBytes, NULL) != 0) {
-        printf("Comenzando experimento...\n");
+        printf("Comenzando experimento con t = %d minutos...\n", time);
     }
     else {
         printf("Error en la escritura del puerto");
@@ -142,7 +142,7 @@ int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos) {
             //Si en menos de 5s hemos leído algo (puede ser vacío) saltaremos aquí
             if (readSize == 0) {
                 //Tras 5s no hemos leído nada --> Salir bucle
-                printf("Ensayo finalidado, saliendo...");
+                printf("Ensayo finalidado, saliendo...\n");
                 continuar = 0;
             }
             else {
