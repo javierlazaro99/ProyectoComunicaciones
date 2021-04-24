@@ -9,7 +9,7 @@ import serial
 #Declaracion de variables
 GPIO_PIN_PERSONAS = 23
 GPIO_PIN_AIRE = 24
-GPIO_PIN_RELE = 26
+GPIO_PIN_RELE = 21
 tiempo = 0.0;
 puerto_abierto = False
 rele_activo = False
@@ -32,7 +32,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(GPIO_PIN_PERSONAS, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(GPIO_PIN_AIRE, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(GPIO_PIN_RELE, GPIO.OUT)
-GPIO.output(RELAIS_PIN, False)
+GPIO.output(GPIO_PIN_RELE, False)
 
 #Funciones para los eventos de botones
 def sumarPersonas(null):
@@ -44,12 +44,13 @@ def sumarPersonas(null):
 
 def activarVentilador(null):
     global rele_activo
-    if !rele_activo: #Rele no activo --> Se activa el rele
-        GPIO.output(RELAIS_PIN, True)
+    global caudal
+    if not rele_activo: #Rele no activo --> Se activa el rele
+        GPIO.output(GPIO_PIN_RELE, True)
         caudal = 100
         rele_activo = True
     else: #Rele activo --> Se desactiva el rele
-        GPIO.output(RELAIS_PIN, False)
+        GPIO.output(GPIO_PIN_RELE, False)
         caudal = 0
         rele_activo = False
 
