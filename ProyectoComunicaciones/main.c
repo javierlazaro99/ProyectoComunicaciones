@@ -2,6 +2,7 @@
 #include<string.h>
 #include<conio.h>
 #include "comunicaciones.h"
+#include "datos.h"
 #pragma warning(disable:4996)
 
 //Imprime por pantalla la esctructura del menú principal con el que interactuará el usuario
@@ -18,9 +19,8 @@ void mostrarMenuPrincipal() {
 void mostrarMenuTest() {
 	printf("------------- Programa de medicion de CO2 -------------\n");
 	printf("[MODO DE RECOPILACION DE DATOS]\n");
-	printf("Inroduzca el tiempo del test (5-30 minutos): ");
+	printf("Introduzca el tiempo del test (5-30 minutos): ");
 }
-
 
 
 int main() {
@@ -57,17 +57,29 @@ int main() {
 				if (_getch() == 's') {
 					system("cls");
 					//Se abre el puerto y se intenta lanzar el experimento con los valores introducidos por el usuario
-					if (abrirPuerto(&port) == 0) {
+					if (abrirPuerto(&port)) {
 						printf("Error en la creación del puerto");
 						return(0);
 					}
-					if (comenzarExperimento(port, tiempoTest) == 0) {
+					if (comenzarExperimento(port, tiempoTest)) {
 						printf("Error al iniciar experimento");
 					}
-					if (leerDatosExperimento(port, &listaDatos, &numDatos) == 0) {
+					if (leerDatosExperimento(port, &listaDatos, &numDatos)) {
 						printf("Error durante la comunicación serie");
 						return(0);
 					}
+
+					printf("Desea guardar los datos obtenidos? (s/n)\n");
+					if (_getch() == 's') {
+						if (guardaDatos(listaDatos, numDatos) == 0) {
+							printf("Datos guardados correctamente!\n");
+						}
+						else {
+							printf("Error al tratar de guardar los datos\n");
+						}
+					}
+					
+
 				}
 			}
 			printf("Pulse ENTER para continuar...\n");
