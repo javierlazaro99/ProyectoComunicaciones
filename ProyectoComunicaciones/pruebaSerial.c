@@ -16,7 +16,7 @@ void combinarAFloat(unsigned char* bytes, int inicio, float *f) {
     memcpy(f, bytes_aux, sizeof(float));
 }
 
-int combinarBuffer(DATO *miDato,char* buffer, int tamBuffer, int numSep, char fin) {
+int combinarBuffer(DATO *miDato, char* buffer, int tamBuffer, int numSep, char fin) {
     int sep = 0, error = 0;
 
     //Comprobación de que el buffer es válido 
@@ -32,6 +32,7 @@ int combinarBuffer(DATO *miDato,char* buffer, int tamBuffer, int numSep, char fi
         miDato->co2 = combinarAInt(buffer, 0);
         miDato->numPersonas = combinarAInt(buffer, 5);
         miDato->caudal = combinarAInt(buffer, 10);
+        combinarAFloat(buffer, 15, &miDato->tiempo);
         combinarAFloat(buffer, 15, &miDato->tiempo);
     }
     else { //Buffer invalido
@@ -58,7 +59,7 @@ int abrirPuerto(HANDLE *port) {
     if (*port == INVALID_HANDLE_VALUE) {
         printf("Error al abrir el puerto: %s", device);
         CloseHandle(*port);
-        return(0);
+        return(1);
     }
 
     //Configuramos los parametros del puerto
@@ -83,7 +84,7 @@ int abrirPuerto(HANDLE *port) {
     COMMTIMEOUTS cTimeout;
 
     if (GetCommTimeouts(*port, &cTimeout)) {
-        cTimeout.ReadIntervalTimeout = 5; // Tiempo de espera entre recibir 2 bytes conecutivos,
+        cTimeout.ReadIntervalTimeout = 35; // Tiempo de espera entre recibir 2 bytes conecutivos,
         cTimeout.ReadTotalTimeoutConstant = 5000; // Cuanto tiempo se queda esperando el readfile
         cTimeout.ReadTotalTimeoutMultiplier = 0; // Esto da un poco igual --> No se usa mucho
         cTimeout.WriteTotalTimeoutConstant = 1000;
@@ -92,12 +93,12 @@ int abrirPuerto(HANDLE *port) {
     else {
         printf("Error en la configuración de los timeouts: %s", device);
         CloseHandle(*port);
-        return(0);
+        return(1);
     }
 
     SetCommTimeouts(*port, &cTimeout);
 
-    return(1);
+    return(0);
 }
 
 int comenzarExperimento(HANDLE port, int time) {
@@ -111,11 +112,11 @@ int comenzarExperimento(HANDLE port, int time) {
     else {
         printf("Error en la escritura del puerto");
         CloseHandle(port);
-        return(0);
+        return(1);
     }
 
 
-    return(1);
+    return(0);
 }
 
 int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos) {   
@@ -133,7 +134,7 @@ int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos) {
     if (*listaDatos == NULL) {
         printf("Error en la creación de la lista de datos");
         CloseHandle(port);
-        return(0);
+        return(1);
     }
 
     do {
@@ -151,6 +152,7 @@ int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos) {
                     printf("Valores leidos: CO2: %d  , Num Personas: %d  , Caudal aire: %d , Tiempo: %.1f ;\n", miDato.co2, miDato.numPersonas, miDato.caudal, miDato.tiempo);
                     (*listaDatos)[contDatos] = miDato;
                     contDatos++;
+                    //printf("BIEN");
                 }
                 else {
                     printf("Error, buffer no valido\n");
@@ -160,7 +162,7 @@ int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos) {
         else {
             printf("Error en la lectura del puerto");
             CloseHandle(port);
-            return(0);
+            return(1);
         }
     } while (continuar);
 
@@ -168,5 +170,5 @@ int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos) {
 
     CloseHandle(port);
     port = INVALID_HANDLE_VALUE;
-    return(1);
+    return(0);
 }
