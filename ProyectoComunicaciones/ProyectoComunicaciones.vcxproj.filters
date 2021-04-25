@@ -21,10 +21,10 @@
     <ClCompile Include="csv.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="pruebaCsv.c">
+    <ClCompile Include="datos.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="pruebaSerial.c">
+    <ClCompile Include="comunicaciones.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="main.c">

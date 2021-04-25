@@ -18,8 +18,8 @@ void mostrarMenuPrincipal() {
 //Imprime por pantalla la esctructura del menú para lanzar la recopilación de datos
 void mostrarMenuTest() {
 	printf("------------- Programa de medicion de CO2 -------------\n");
-	printf("[MODO DE RECOPILACION DE DATOS]\n");
-	printf("Introduzca el tiempo del test (5-30 minutos): ");
+	printf("[MODO DE RECOPILACION DE DATO_LEIDOS]\n");
+	printf("Introduzca el tiempo del test (1-30 minutos): ");
 }
 
 
@@ -30,7 +30,7 @@ int main() {
 	//  - 2: otro que coja unos datos guarados, calcule la regresión y te haga prediciones con lo que le pidas
 
 	HANDLE puerto;
-	DATO* listaDatos = (DATO*)calloc(1000, sizeof(DATO));
+	DATO_LEIDO* listaDatos = (DATO_LEIDO*)calloc(1000, sizeof(DATO_LEIDO));
 	int numDatos = 0;
 	HANDLE port;
 
@@ -78,14 +78,16 @@ int main() {
 							printf("Error al tratar de guardar los datos\n");
 						}
 					}
-					
-
 				}
 			}
 			printf("Pulse ENTER para continuar...\n");
 			while (!_kbhit());
 		}
 		else if (seleccion == '2') {
+			/// <summary>
+			/// AQUI HAY QUE HACER QUE PUEDAS LLAMAR A combinarDatos() para generar el csv completo
+			/// </summary>
+			/// <returns></returns>
 			printf("TECLA 2 PULSADA\n");
 		}
 		else if (seleccion == '3') {

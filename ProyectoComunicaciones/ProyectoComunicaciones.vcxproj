@@ -142,8 +142,8 @@
     <ClCompile Include="csv.c" />
     <ClCompile Include="gradiente.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="pruebaCsv.c" />
-    <ClCompile Include="pruebaSerial.c" />
+    <ClCompile Include="datos.c" />
+    <ClCompile Include="comunicaciones.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="comunicaciones.h" />

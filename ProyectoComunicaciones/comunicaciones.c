@@ -4,19 +4,21 @@
 
 #pragma warning(disable:4996)
 
-
+//Combina 4 bytes en un unsigned int
 unsigned int combinarAInt(unsigned char* bytes, int inicio) {
     unsigned int ret = bytes[inicio] | (bytes[inicio + 1] << 8) | (bytes[inicio + 2] << 16) | (bytes[inicio + 3] << 24);
     return ret;
 }
 
+//Combina 4 bytes a un float
 void combinarAFloat(unsigned char* bytes, int inicio, float *f) {
 
     unsigned char bytes_aux[4] = { bytes[inicio],bytes[inicio + 1], bytes[inicio + 2],bytes[inicio + 3] };
     memcpy(f, bytes_aux, sizeof(float));
 }
 
-int combinarBuffer(DATO *miDato, char* buffer, int tamBuffer, int numSep, char fin) {
+//Combina el buffer leído por serial y lo convierte en una estructura de tipo DATO_LEIDO
+int combinarBuffer(DATO_LEIDO *miDato, char* buffer, int tamBuffer, int numSep, char fin) {
     int sep = 0, error = 0;
 
     //Comprobación de que el buffer es válido 
@@ -119,7 +121,7 @@ int comenzarExperimento(HANDLE port, int time) {
     return(0);
 }
 
-int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos) {   
+int leerDatosExperimento(HANDLE port, DATO_LEIDO** listaDatos, int* numDatos) {   
     //Configurar la lectura
     DWORD eventMask;
 
@@ -130,7 +132,7 @@ int leerDatosExperimento(HANDLE port, DATO** listaDatos, int* numDatos) {
     unsigned char bufferLectura[100];
     int continuar = 1, contDatos = 0;
     DWORD readSize;
-    DATO miDato;
+    DATO_LEIDO miDato;
     if (*listaDatos == NULL) {
         printf("Error en la creación de la lista de datos");
         CloseHandle(port);
