@@ -5,63 +5,58 @@
 #include "datos.h"
 
 
-void print_buffer(CSV_BUFFER* buffer) {
+int cargarValores(DATO** datos, int* size) {
 
-	char c[10];
+	*datos = NULL;
 
-	for (int i = 0; i < buffer->rows; i++)
-	{
-		for (int j = 0; j < buffer->width[i]; j++)
-		{
-			csv_get_field(c, 9, buffer, i, j);
-			printf("%s\n", c);
-		}
-	}
-}
-
-//Carga 2 arrays de doubles con los valores de x e y del csv que se haya leido
-//Devuelve el valor del tamaño que tendrán dichos arrays en memoria
-int cargar_valores(double** x, double** y, CSV_BUFFER* buffer) {
-	*y = NULL;
-	*x = NULL;
-
+	CSV_BUFFER* buffer = csv_create_buffer();
 	char c[10]; //Buffer para leer cada valor
-	int size = 0;
-	
-	for (int i = 1; i < buffer->rows; i++)
-	{
-		size++;
-		for (int j = 0; j < buffer->width[i]; j++)
+	int numDatos = 0;
+
+	if (csv_load(buffer, "datosCompletos.csv") == 0) {
+		
+		for (int i = 0; i < buffer->rows; i++)
 		{
-			csv_get_field(c, 9, buffer, i, j);
-			
-			if (j == 0) {
-				*y = (double*)realloc(*y, size*sizeof(double));
-				if (*y != NULL) {
-					(*y)[size - 1] = atof(c);
-				}
-				else {
-					printf("Error al hacer realloc para y");
-					return(0);
-				}
-			}
-			else if (j == 1) {
-				*x = (double*)realloc(*x, size*sizeof(double));
-				if (*x != NULL) {
-					(*x)[size - 1] = atof(c);
-				}
-				else {
-					printf("Error al hacer realloc para x");
-					return(0);
+			//Cada fila nueva ampliamos nuestro array de estructuras
+			*datos = (DATO*)realloc(*datos, (numDatos + 1) * sizeof(DATO));
+			if (*datos != NULL) {
+				for (int j = 0; j < buffer->width[i]; j++)
+				{
+					if (csv_get_field(c, 9, buffer, i, j) == 0) {
+
+						switch (j)
+						{
+						case 0:
+							(*datos)[numDatos].ganancia = atof(c);
+							break;
+						case 1:
+							(*datos)[numDatos].numPersonas = atof(c);
+							break;
+						case 2:
+							(*datos)[numDatos].caudal = atof(c);
+							break;
+						}
+					}
+					else {
+						printf("Error al leer el elemento %d de la fila %d del csv", j, i);
+						return(1);
+					}
 				}
 			}
 			else {
-				return (0);
+				printf("Error al alojar memoria para el array");
+				return(1);
 			}
+			
+
+			numDatos++;
 		}
 	}
-	return(size);
+
+	*size = numDatos;
+	return(0);
 }
+
 
 //Calcula la ganancia de co2 media en un periodo determinado
 double generarGananciaMedia(CSV_BUFFER* bufferLectura, int nMuestras) {
