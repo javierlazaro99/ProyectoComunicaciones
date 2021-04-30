@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="gradiente.c">
+    <ClCompile Include="regresion.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="csv.c">

@@ -140,7 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="csv.c" />
-    <ClCompile Include="gradiente.c" />
+    <ClCompile Include="regresion.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="datos.c" />
     <ClCompile Include="comunicaciones.c" />
