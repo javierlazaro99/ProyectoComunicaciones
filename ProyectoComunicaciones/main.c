@@ -10,7 +10,7 @@ void mostrarMenuPrincipal() {
 	printf("------------- Programa de medicion de CO2 -------------\n");
 	printf("[MENU]\n");
 	printf("1. Realizar una recopilacion de datos de CO2\n");
-	printf("2. Realizar una prediccion con los datos historicos\n");
+	printf("2. Generar el modelo en base a datos guardados\n");
 	printf("3. Salir del programa\n");
 	printf("Persione una tecla para continuar: ");
 }
@@ -20,6 +20,16 @@ void mostrarMenuTest() {
 	printf("------------- Programa de medicion de CO2 -------------\n");
 	printf("[MODO DE RECOPILACION DE DATO_LEIDOS]\n");
 	printf("Introduzca el tiempo del test (1-30 minutos): ");
+}
+
+void mostrarMenuGenerarModelo() {
+	printf("------------- Programa de medicion de CO2 -------------\n");
+	printf("[GENERACION DEL MODELO EN BASE A DATOS GUARDADOS]\n");
+	printf("+----------------------------------------------------------------------------------+\n");
+	printf("|  Atencion! Este modo utiliza los datos previamente obtenidos de los experimentos |\n");
+	printf("|  La calidad del modelo es equivalente a la calidad de los datos utilizados       |\n");
+	printf("+----------------------------------------------------------------------------------+\n");
+	printf("Introduzca el intervalo de tiempo para la ganancia de C02 (min): ");
 }
 
 
@@ -35,7 +45,7 @@ int main() {
 	HANDLE port;
 
 	// ----------------- PARTE VISUAL DEL PROGRAMA -------------------------//
-	int tiempoTest, salir = 0;
+	int tiempoTest, tiempoMuestreo, salir = 0;
 	char seleccion;
 
 	while (salir == 0) {
@@ -88,7 +98,24 @@ int main() {
 			/// AQUI HAY QUE HACER QUE PUEDAS LLAMAR A combinarDatos() para generar el csv completo
 			/// </summary>
 			/// <returns></returns>
-			printf("TECLA 2 PULSADA\n");
+			system("cls");
+			mostrarMenuGenerarModelo();
+
+			scanf("%d", &tiempoMuestreo);
+
+			if (tiempoMuestreo < 1 || tiempoMuestreo > 30) {
+				printf("Error, valor fuera del rango permitido\n");
+			}
+			else {
+				combinarDatos(tiempoMuestreo);
+				printf("Terminado el proceso de creacion de datos para el modelo\n");
+
+				/// Llamar a la función de regresión una vez combinados los datos
+
+			}
+
+			printf("Pulse ENTER para continuar...\n");
+			while (!_kbhit());
 		}
 		else if (seleccion == '3') {
 			salir = 1;
