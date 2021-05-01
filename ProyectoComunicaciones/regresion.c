@@ -3,7 +3,12 @@
 #include "datos.h"
 
 
-void regLinMult(DATO* listaDatos, double modelo[3], int numDatos, int numVueltas) {
+void regLinMult(double modelo[3], int numVueltas) {
+
+	//Cargamos los valores para realizar la regresión
+	DATO* listaDatos = NULL;
+	int numDatos = 0;
+	cargarValores(&listaDatos, &numDatos);
 
 	double w0 = 0, w1 = 0, w2 = 0;
 	
@@ -24,11 +29,11 @@ void regLinMult(DATO* listaDatos, double modelo[3], int numDatos, int numVueltas
 		w1 = w1 + alfa * error * (listaDatos[indice].caudal / 100);
 		w0 = w0 + alfa * error;
 
-		if (i % numVueltas == 0)
+		/*if (i % numVueltas == 0)
 		{
-			printf("Iteracion %d: ganancia = %.3f * numPer + %.3f * caudal / 100 + %.3f \n", i, w2, w1, w0);
+			printf("Iteracion %d: ganancia = %+.3f * numPer %+.3f * caudal / 100 %+.3f \n", i, w2, w1, w0);
 			printf("Valor del error: %.5f\n", error);
-		}
+		}*/
 	}
 
 	modelo[0] = w0;
@@ -37,7 +42,12 @@ void regLinMult(DATO* listaDatos, double modelo[3], int numDatos, int numVueltas
 }
 
 
-double calcRmse(DATO * listaDatos, double modelo[3], int numDatos) {
+double calcRmse(double modelo[3]) {
+
+	//Cargamos los valores para realizar la regresión
+	DATO* listaDatos = NULL;
+	int numDatos = 0;
+	cargarValores(&listaDatos, &numDatos);
 
 	double rmse = 0.0;
 	double hipotesis, error;
@@ -55,21 +65,35 @@ double calcRmse(DATO * listaDatos, double modelo[3], int numDatos) {
 }
 
 
-int main() {
+double predecirCo2(double modelo[3], double valCo2Inicial, int numPersonas, int caudal, int vueltas) {
+
+	int tiempo = 0;
+	double co2 = valCo2Inicial;
 	
-	DATO* listaDatos = NULL;
-	int size = 0;
-	double resultado[3];
+	printf("Predicciones para los siguientes %d minutos: \n", vueltas);
+	for (int i = 0; i < vueltas; i++)
+	{
+		co2 = co2 + modelo[2] * numPersonas + modelo[1] * caudal / 100 + modelo[0];
+		printf("Minuto %d: CO2 = %lf ppm\n", ++tiempo, co2);
+	}
 
-	cargarValores(&listaDatos, &size);
-
-	regLinMult(listaDatos, resultado, size, 100);
-
-	double rmse = calcRmse(listaDatos, resultado, size);
-
-	printf("RMSE: %.4f\n", rmse);
-
-	printf("RESULTADO: ganancia = %.3f * numPer + %.3f * caudal / 100 + %.3f \n", resultado[2], resultado[1], resultado[0]);
-
-	return(0);
+	return(co2);
 }
+
+//int main() {
+//	
+//	
+//	double resultado[3];
+//
+//	
+//
+//	regLinMult(resultado, 100);
+//
+//	double rmse = calcRmse(resultado);
+//
+//	printf("RMSE: %.4f\n", rmse);
+//
+//	printf("RESULTADO: ganancia = %.3f * numPer + %.3f * caudal / 100 + %.3f \n", resultado[2], resultado[1], resultado[0]);
+//
+//	return(0);
+//}
