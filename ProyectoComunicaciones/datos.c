@@ -13,7 +13,7 @@ int cargarValores(DATO** datos, int* size) {
 	char c[10]; //Buffer para leer cada valor
 	int numDatos = 0;
 
-	if (csv_load(buffer, "datosCompletos.csv") == 0) {
+	if (csv_load(buffer, "datosTest.csv") == 0) { //////SOLO PARA TESTEAR EL ALGORITMO HAY QUE CAMBIARLO
 		
 		for (int i = 0; i < buffer->rows; i++)
 		{
@@ -80,10 +80,10 @@ double generarGananciaMedia(CSV_BUFFER* bufferLectura, int nMuestras) {
 				totalMediciones++;
 			}
 
-			printf("Primer valor: %d\n", primerVal);
-			printf("Suma: %d\n", suma);
-			printf("Cuenta: %d\n", cuenta);
-			printf("Result: %lf\n", result);
+			//printf("Primer valor: %d\n", primerVal);
+			//printf("Suma: %d\n", suma);
+			//printf("Cuenta: %d\n", cuenta);
+			//printf("Result: %lf\n", result);
 
 			//Devolvemos los contadores a su valor original
 			suma = 0;
@@ -215,11 +215,11 @@ int combinarDatos(int tiempoMuestra) {
 
 			if (csv_load(bufferLectura, rutaArchivo) == 0) {
 
-				printf("Correctamente abierto el archivo: %s\n", file.cFileName);
+				//printf("Correctamente abierto el archivo: %s\n", file.cFileName);
 
 				//Una vez aquí calculamos la ganacia media de todas las muestras --> Esto es lo que vamos a guardar
 				double valorMedioTotal = generarGananciaMedia(bufferLectura, numMuestras);
-				printf("Media total: %lf\n", valorMedioTotal);
+				//printf("Media total: %lf\n", valorMedioTotal);
 				
 				//Gestionamos la escritura a csv
 				if (guardaDatosCompletos(bufferEscritura, rutaArchivo, valorMedioTotal, numDatos) == 1) {
