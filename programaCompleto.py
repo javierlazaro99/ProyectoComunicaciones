@@ -68,7 +68,7 @@ try:
 
         #Leemos constantemente, pero solo mostramos por pantalla cada 2s más o menos
         if (time.time() - start_time) >= 2.0:
-            print("CO2: %1.0f PPM, Nº Personas: %d, Caudal: %3d m3" % (co2, num_personas, caudal))
+            print("CO2: %1.0f PPM, Nº Personas: %d, Caudal: %3d m3/h" % (co2, num_personas, caudal))
             start_time = time.time()
 
         #Comprobamos si se puede establecer conexión
@@ -95,7 +95,7 @@ try:
 
                     while tiempo <= tiempo_experimento :
                         try:
-                            print("Tiempo: %.1f s, CO2: %1.0f PPM, Nº Personas: %d, Caudal: %3d m3" % (tiempo, ccs811.eco2, num_personas, caudal))
+                            print("Tiempo: %.1f s, CO2: %1.0f PPM, Nº Personas: %d, Caudal: %3d m3/h" % (tiempo, ccs811.eco2, num_personas, caudal))
                             ser.write(struct.pack('I',ccs811.eco2))     #Enviamos el valor de C02 como unsigned integer
                             ser.write(b',')                             #Separador
                             ser.write(struct.pack('I',num_personas))               #Enviamos el numero de personas

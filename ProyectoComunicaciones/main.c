@@ -38,7 +38,7 @@ void mostrarMenuPrediccionDatos(int numPer, int caudal, int tiempo) {
 	printf("------------- Programa de medicion de CO2 -------------\n");
 	printf("[PREDICCION DE CO2]\n\n");
 	printf("Numero de personas en la sala (+/-): %d \n", numPer);
-	printf("Caudal de aire en la sala (m3) (u/d): %d \n", caudal);
+	printf("Caudal de aire en la sala (m3/h) (u/d): %d \n", caudal);
 	printf("Tiempo de ensayo (min) (h/l): %d \n\n", tiempo);
 
 	printf("Presione la tecla r para reset\n");
