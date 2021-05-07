@@ -10,10 +10,10 @@ int cargarValores(DATO** datos, int* size) {
 	*datos = NULL;
 
 	CSV_BUFFER* buffer = csv_create_buffer();
-	char c[10]; //Buffer para leer cada valor
+	char c[20]; //Buffer para leer cada valor
 	int numDatos = 0;
 
-	if (csv_load(buffer, "datosTest.csv") == 0) { //////SOLO PARA TESTEAR EL ALGORITMO HAY QUE CAMBIARLO
+	if (csv_load(buffer, "datosCompletos.csv") == 0) { //////SOLO PARA TESTEAR EL ALGORITMO HAY QUE CAMBIARLO
 		
 		for (int i = 0; i < buffer->rows; i++)
 		{
@@ -22,7 +22,7 @@ int cargarValores(DATO** datos, int* size) {
 			if (*datos != NULL) {
 				for (int j = 0; j < buffer->width[i]; j++)
 				{
-					if (csv_get_field(c, 9, buffer, i, j) == 0) {
+					if (csv_get_field(c, 19, buffer, i, j) == 0) {
 
 						switch (j)
 						{
