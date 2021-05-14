@@ -29,11 +29,6 @@ void regLinMult(double modelo[3], int numVueltas) {
 		w1 = w1 + alfa * error * (listaDatos[indice].caudal / 100);
 		w0 = w0 + alfa * error;
 
-		/*if (i % numVueltas == 0)
-		{
-			printf("Iteracion %d: ganancia = %+.3f * numPer %+.3f * caudal / 100 %+.3f \n", i, w2, w1, w0);
-			printf("Valor del error: %.5f\n", error);
-		}*/
 	}
 
 	modelo[0] = w0;

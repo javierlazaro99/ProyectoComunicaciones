@@ -154,7 +154,6 @@ int leerDatosExperimento(HANDLE port, DATO_LEIDO** listaDatos, int* numDatos) {
                     printf("Valores leidos: CO2: %d  , Num Personas: %d  , Caudal aire: %d , Tiempo: %.1f ;\n", miDato.co2, miDato.numPersonas, miDato.caudal, miDato.tiempo);
                     (*listaDatos)[contDatos] = miDato;
                     contDatos++;
-                    //printf("BIEN");
                 }
                 else {
                     printf("Error, buffer no valido\n");

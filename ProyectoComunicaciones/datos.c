@@ -80,11 +80,6 @@ double generarGananciaMedia(CSV_BUFFER* bufferLectura, int nMuestras) {
 				totalMediciones++;
 			}
 
-			//printf("Primer valor: %d\n", primerVal);
-			//printf("Suma: %d\n", suma);
-			//printf("Cuenta: %d\n", cuenta);
-			//printf("Result: %lf\n", result);
-
 			//Devolvemos los contadores a su valor original
 			suma = 0;
 			cuenta = 0;
@@ -215,11 +210,8 @@ int combinarDatos(int tiempoMuestra) {
 
 			if (csv_load(bufferLectura, rutaArchivo) == 0) {
 
-				//printf("Correctamente abierto el archivo: %s\n", file.cFileName);
-
 				//Una vez aquí calculamos la ganacia media de todas las muestras --> Esto es lo que vamos a guardar
 				double valorMedioTotal = generarGananciaMedia(bufferLectura, numMuestras);
-				//printf("Media total: %lf\n", valorMedioTotal);
 				
 				//Gestionamos la escritura a csv
 				if (guardaDatosCompletos(bufferEscritura, rutaArchivo, valorMedioTotal, numDatos) == 1) {
