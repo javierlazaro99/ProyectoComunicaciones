@@ -52,7 +52,6 @@ int combinarBuffer(DATO_LEIDO *miDato, char* buffer, int tamBuffer, int numSep, 
 
 int abrirPuerto(HANDLE *port) {
 
-    //HANDLE port;
     char* device = "\\\\.\\COM6";
 
     //Con esto tratamos de abrir el puerto COM6
