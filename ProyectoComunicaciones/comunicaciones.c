@@ -42,7 +42,7 @@ int combinarBuffer(DATO_LEIDO *miDato, char* buffer, int tamBuffer, int numSep, 
     }
 
     //Checkear la validez de los datos leídos
-    if (miDato->co2 < 400) {
+    if (miDato->co2 < 400 || miDato->numPersonas > 4) {
         error = 1; //Lecturas por debajo de 400 son errores del sensor
     }
 
