@@ -13,7 +13,7 @@ int cargarValores(DATO** datos, int* size) {
 	char c[20]; //Buffer para leer cada valor
 	int numDatos = 0;
 
-	if (csv_load(buffer, "datosCompletos.csv") == 0) { //////SOLO PARA TESTEAR EL ALGORITMO HAY QUE CAMBIARLO
+	if (csv_load(buffer, "datosCompletos.csv") == 0) { 
 		
 		for (int i = 0; i < buffer->rows; i++)
 		{
