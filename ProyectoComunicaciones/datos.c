@@ -248,11 +248,3 @@ int combinarDatos(int tiempoMuestra) {
 	return 0;
 	
 }
-
-
-//int main() {
-//
-//	combinarDatos(1);
-//	
-//	return(0);
-//}

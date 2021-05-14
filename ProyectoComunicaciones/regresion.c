@@ -79,21 +79,3 @@ double predecirCo2(double modelo[3], double valCo2Inicial, int numPersonas, int 
 
 	return(co2);
 }
-
-//int main() {
-//	
-//	
-//	double resultado[3];
-//
-//	
-//
-//	regLinMult(resultado, 100);
-//
-//	double rmse = calcRmse(resultado);
-//
-//	printf("RMSE: %.4f\n", rmse);
-//
-//	printf("RESULTADO: ganancia = %.3f * numPer + %.3f * caudal / 100 + %.3f \n", resultado[2], resultado[1], resultado[0]);
-//
-//	return(0);
-//}
